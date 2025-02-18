@@ -1,5 +1,7 @@
 import './globals.css'
 import 'leaflet/dist/leaflet.css'
+import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Analytics } from "@vercel/analytics/next"
 
 export default function RootLayout({
   children,
@@ -8,7 +10,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+      {children}
+      <Analytics />
+      <SpeedInsights />
+      </body>
     </html>
   )
 }
