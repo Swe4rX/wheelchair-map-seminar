@@ -9,9 +9,12 @@ interface LocationMarkerProps {
   onSelect: (location: Location) => void;
 }
 
-const createMarkerIcon = (iconName: string) => {
+// Default icon name for all markers
+const DEFAULT_ICON_NAME = "default-icon";
+
+const createMarkerIcon = () => {
   return L.icon({
-    iconUrl: `/markers/${iconName}.png`,
+    iconUrl: `/markers/${DEFAULT_ICON_NAME}.png`,
     iconSize: [25, 41],
     iconAnchor: [16, 32],
     popupAnchor: [0, -32],
@@ -22,9 +25,10 @@ export const LocationMarker: React.FC<LocationMarkerProps> = ({
   location,
   onSelect,
 }) => {
+  
   const icon = React.useMemo(
-    () => createMarkerIcon(location.icon),
-    [location.icon]
+    () => createMarkerIcon(),
+    [] 
   );
 
   return (

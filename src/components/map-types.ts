@@ -6,5 +6,4 @@ export interface Location {
   longitude: number;
   rating: number;
   imageUrl: string;
-  icon: string;
 }
