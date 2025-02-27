@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Location } from "./map-types";
+import { Location } from "../map-types";
 import { StarRating } from "../ui/star-rating";
 import { Search } from "lucide-react";
 

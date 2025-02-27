@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer } from "react-leaflet";
-import { Location } from "./map-types";
+import { Location } from "../map-types";
 import { LocationSidebar } from "../sidebar/location-sidebar";
 import { MapController } from "./map-controller";
 import { LocationMarker } from "./location-marker";

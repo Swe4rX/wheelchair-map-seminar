@@ -1,7 +1,7 @@
 import React from "react";
 import { Marker, Popup } from "react-leaflet";
 import L from "leaflet";
-import { Location } from "./map-types";
+import { Location } from "../map-types";
 import { LocationPopup } from "./location-popup";
 
 interface LocationMarkerProps {

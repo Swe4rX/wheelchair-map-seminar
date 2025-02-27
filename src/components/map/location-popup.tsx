@@ -1,5 +1,5 @@
 import React from "react";
-import { Location } from "./map-types";
+import { Location } from "../map-types";
 import { StarRating } from "../ui/star-rating";
 
 interface LocationPopupProps {
