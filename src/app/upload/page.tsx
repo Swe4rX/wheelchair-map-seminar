@@ -35,30 +35,33 @@ export default function UploadPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError("");
-    
-
+  
     if (!locationData.name || !locationData.description || !locationData.latitude || !locationData.longitude) {
       setFormError("Please fill in all required fields");
       return;
     }
-
+  
     if (!url && !uploading) {
       try {
         await handleUpload();
         return; // The component will re-render with the URL
-      } catch (err: any) {
-        setFormError(err.message || "Failed to upload image");
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setFormError(err.message || "Failed to upload image");
+        } else {
+          setFormError("Failed to upload image");
+        }
         return;
       }
     }
-    
+  
     if (!url) {
       setFormError("Please upload an image");
       return;
     }
-    
+  
     setIsSubmitting(true);
-    
+  
     try {
       const response = await fetch("/api/locations/upload", {
         method: "POST",
@@ -73,21 +76,24 @@ export default function UploadPage() {
           imageUrl: url
         })
       });
-      
+  
       if (!response.ok) {
         const data = await response.json();
         throw new Error(data.error || "Failed to create location");
       }
-      
+  
       setFormSuccess("Location added successfully!");
-      
-      
+  
       //setTimeout(() => {
       //  router.push("/");
       //}, 2000);
-      
-    } catch (err: any) {
-      setFormError(err.message || "An error occurred");
+  
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setFormError(err.message || "An error occurred");
+      } else {
+        setFormError("An error occurred");
+      }
     } finally {
       setIsSubmitting(false);
     }
