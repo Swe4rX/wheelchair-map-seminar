@@ -12,6 +12,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		return res.status(405).json({ error: "Method not allowed" });
 	}
 	
+	console.log(req.headers);
+	console.log(req.body);
+
 	const form = formidable();
 	
 	form.parse(req, async (err, fields, files) => {

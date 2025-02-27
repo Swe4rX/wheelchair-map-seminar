@@ -51,7 +51,7 @@ export const useImageUpload = (): ImageUploadReturn => {
 		formData.append("file", image);
 		
 		try {
-			const res = await fetch("/api/upload", {method: "POST", body: formData});
+			const res = await fetch("/api/image/upload", {method: "POST", body: formData});
 			const data = await res.json();
 			
 			if (res.ok) {

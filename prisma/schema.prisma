@@ -13,12 +13,11 @@ generator client {
 }
 
 model Location {
-  id          Int    @id @default(autoincrement())
+  id          String  @id @default(uuid())
   name        String
   description String
   rating      Float
   imageUrl    String
   latitude    Float
   longitude   Float
-  icon        String
 }

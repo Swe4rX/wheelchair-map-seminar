@@ -23,7 +23,7 @@ const LocationMap: React.FC = () => {
     const fetchLocations = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch("/api/locations");
+        const response = await fetch("/api/locations/get");
 
         if (!response.ok) {
           throw new Error(`Server responded with ${response.status}`);
