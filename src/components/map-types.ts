@@ -1,12 +1,10 @@
 export interface Location {
-  id: number;
-  position: [number, number];
+  id: string;
   name: string;
-  rating: number;
   description: string;
+  latitude: number;
+  longitude: number;
+  rating: number;
   imageUrl: string;
-}
-
-export interface MapProps {
-  className?: string;
+  icon: string;
 }
