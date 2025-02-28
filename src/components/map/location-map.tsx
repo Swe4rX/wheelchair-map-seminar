@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import { MapContainer, TileLayer } from "react-leaflet";
+import { MapContainer, TileLayer, ZoomControl } from "react-leaflet";
 import { Location } from "../map-types";
 import { LocationSidebar } from "../sidebar/location-sidebar";
 import { MapController } from "./map-controller";
@@ -35,6 +35,9 @@ const LocationMap: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const { isMobile, view, setView } = useResponsiveView();
+  
+  // Track map visibility for proper resizing
+  const isMapVisible = !isMobile || (isMobile && view === "map");
 
   // Fetch locations data
   useEffect(() => {
@@ -61,7 +64,6 @@ const LocationMap: React.FC = () => {
     fetchLocations();
   }, []);
 
-  // Handlers
   const handleLocationSelect = useCallback((location: Location) => {
     setSelectedLocation(location);
     if (isMobile) setView("map");
@@ -72,7 +74,6 @@ const LocationMap: React.FC = () => {
     if (isMobile) setView("sidebar");
   }, [isMobile, setView]);
 
-  // Error state
   if (error) {
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center bg-white">
@@ -109,6 +110,7 @@ const LocationMap: React.FC = () => {
         className={`${
           isMobile ? (view === "map" ? "flex" : "hidden") : "flex w-4/5"
         } md:block h-full relative`}
+        style={{ height: "100%", width: isMobile && view === "map" ? "100%" : "80%" }}
       >
         {/* Back button - only on mobile when map is shown */}
         {isMobile && view === "map" && (
@@ -126,11 +128,22 @@ const LocationMap: React.FC = () => {
           zoom={DEFAULT_ZOOM}
           className="h-full w-full"
           zoomControl={false}
+          attributionControl={true}
+          scrollWheelZoom={true}
+          doubleClickZoom={true}
+          touchZoom={true}
+          dragging={true}
+          style={{ height: "100%", width: "100%" }}
         >
+          {/* Only add ZoomControl component on desktop */}
+          {!isMobile && <ZoomControl position="topleft" />}
+          
           <MapController
             selectedLocation={selectedLocation}
             defaultCenter={DEFAULT_CENTER}
             defaultZoom={DEFAULT_ZOOM}
+            isMobile={isMobile}
+            isVisible={isMapVisible}
           />
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
