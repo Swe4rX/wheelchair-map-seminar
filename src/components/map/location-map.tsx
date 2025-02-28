@@ -7,27 +7,11 @@ import { LocationSidebar } from "../sidebar/location-sidebar";
 import { MapController } from "./map-controller";
 import { LocationMarker } from "./location-marker";
 import { ChevronLeft } from "lucide-react";
+import { useResponsiveView } from "@/hooks/useResponsiveView";
 
 // Map default settings
 const DEFAULT_CENTER: [number, number] = [48.7519, 8.55];
 const DEFAULT_ZOOM = 14;
-
-// Custom hook for device detection and view management
-const useResponsiveView = () => {
-  const [isMobile, setIsMobile] = useState(false);
-  const [view, setView] = useState<"sidebar" | "map">("sidebar");
-
-  useEffect(() => {
-    const checkIfMobile = () => setIsMobile(window.innerWidth < 768);
-    
-    checkIfMobile();
-    window.addEventListener("resize", checkIfMobile);
-    
-    return () => window.removeEventListener("resize", checkIfMobile);
-  }, []);
-
-  return { isMobile, view, setView };
-};
 
 const LocationMap: React.FC = () => {
   const [locations, setLocations] = useState<Location[]>([]);
@@ -35,7 +19,7 @@ const LocationMap: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const { isMobile, view, setView } = useResponsiveView();
-  
+
   // Track map visibility for proper resizing
   const isMapVisible = !isMobile || (isMobile && view === "map");
 
@@ -64,10 +48,13 @@ const LocationMap: React.FC = () => {
     fetchLocations();
   }, []);
 
-  const handleLocationSelect = useCallback((location: Location) => {
-    setSelectedLocation(location);
-    if (isMobile) setView("map");
-  }, [isMobile, setView]);
+  const handleLocationSelect = useCallback(
+    (location: Location) => {
+      setSelectedLocation(location);
+      if (isMobile) setView("map");
+    },
+    [isMobile, setView]
+  );
 
   const resetSelection = useCallback(() => {
     setSelectedLocation(null);
@@ -91,7 +78,7 @@ const LocationMap: React.FC = () => {
   return (
     <div className="fixed inset-0 flex flex-col md:flex-row">
       {/* Sidebar - hidden on mobile when viewing map */}
-      <div 
+      <div
         className={`${
           isMobile ? (view === "sidebar" ? "flex" : "hidden") : "flex w-1/5"
         } md:block h-full`}
@@ -106,11 +93,14 @@ const LocationMap: React.FC = () => {
       </div>
 
       {/* Map - hidden on mobile when viewing sidebar */}
-      <div 
+      <div
         className={`${
           isMobile ? (view === "map" ? "flex" : "hidden") : "flex w-4/5"
         } md:block h-full relative`}
-        style={{ height: "100%", width: isMobile && view === "map" ? "100%" : "80%" }}
+        style={{
+          height: "100%",
+          width: isMobile && view === "map" ? "100%" : "80%",
+        }}
       >
         {/* Back button - only on mobile when map is shown */}
         {isMobile && view === "map" && (
@@ -122,7 +112,7 @@ const LocationMap: React.FC = () => {
             <ChevronLeft size={24} />
           </button>
         )}
-        
+
         <MapContainer
           center={DEFAULT_CENTER}
           zoom={DEFAULT_ZOOM}
@@ -137,7 +127,7 @@ const LocationMap: React.FC = () => {
         >
           {/* Only add ZoomControl component on desktop */}
           {!isMobile && <ZoomControl position="topleft" />}
-          
+
           <MapController
             selectedLocation={selectedLocation}
             defaultCenter={DEFAULT_CENTER}
