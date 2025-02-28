@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useMap } from "react-leaflet";
 import { Location } from "../map-types";
 
@@ -16,16 +16,18 @@ export const MapController: React.FC<MapControllerProps> = ({
   defaultZoom,
 }) => {
   const map = useMap();
-
+  
   useEffect(() => {
+    const flyOptions = { animate: true, duration: 1.5 };
+    
     if (selectedLocation) {
-      map.flyTo([selectedLocation.latitude, selectedLocation.longitude], 16, {
-        animate: true,
-        duration: 1.5,
-      });
+      map.flyTo(
+        [selectedLocation.latitude, selectedLocation.longitude], 
+        16, 
+        flyOptions
+      );
     } else {
-      // Reset to default view if no location is selected
-      map.flyTo(defaultCenter, defaultZoom, { animate: true });
+      map.flyTo(defaultCenter, defaultZoom, flyOptions);
     }
   }, [selectedLocation, map, defaultCenter, defaultZoom]);
 

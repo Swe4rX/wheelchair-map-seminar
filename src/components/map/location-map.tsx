@@ -1,30 +1,24 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { MapContainer, TileLayer } from "react-leaflet";
 import { Location } from "../map-types";
 import { LocationSidebar } from "../sidebar/location-sidebar";
 import { MapController } from "./map-controller";
 import { LocationMarker } from "./location-marker";
-import { ChevronLeft } from "lucide-react"; // Import icon for back button
+import { ChevronLeft } from "lucide-react";
 
 // Map default settings
 const DEFAULT_CENTER: [number, number] = [48.7519, 8.55];
 const DEFAULT_ZOOM = 14;
 
-const LocationMap: React.FC = () => {
-  const [locations, setLocations] = useState<Location[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
-  const [view, setView] = useState<"sidebar" | "map">("sidebar"); // New state for controlling mobile view
-  const [isMobile, setIsMobile] = useState<boolean>(false);
+// Custom hook for device detection and view management
+const useResponsiveView = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  const [view, setView] = useState<"sidebar" | "map">("sidebar");
 
-  // Check if device is mobile
   useEffect(() => {
-    const checkIfMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
+    const checkIfMobile = () => setIsMobile(window.innerWidth < 768);
     
     checkIfMobile();
     window.addEventListener("resize", checkIfMobile);
@@ -32,10 +26,21 @@ const LocationMap: React.FC = () => {
     return () => window.removeEventListener("resize", checkIfMobile);
   }, []);
 
+  return { isMobile, view, setView };
+};
+
+const LocationMap: React.FC = () => {
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
+  const { isMobile, view, setView } = useResponsiveView();
+
+  // Fetch locations data
   useEffect(() => {
     const fetchLocations = async () => {
-      setIsLoading(true);
       try {
+        setIsLoading(true);
         const response = await fetch("/api/locations/get");
 
         if (!response.ok) {
@@ -56,20 +61,18 @@ const LocationMap: React.FC = () => {
     fetchLocations();
   }, []);
 
-  const handleLocationSelect = (location: Location) => {
+  // Handlers
+  const handleLocationSelect = useCallback((location: Location) => {
     setSelectedLocation(location);
-    if (isMobile) {
-      setView("map");
-    }
-  };
+    if (isMobile) setView("map");
+  }, [isMobile, setView]);
 
-  const resetSelection = () => {
+  const resetSelection = useCallback(() => {
     setSelectedLocation(null);
-    if (isMobile) {
-      setView("sidebar");
-    }
-  };
+    if (isMobile) setView("sidebar");
+  }, [isMobile, setView]);
 
+  // Error state
   if (error) {
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center bg-white">
@@ -86,8 +89,12 @@ const LocationMap: React.FC = () => {
 
   return (
     <div className="fixed inset-0 flex flex-col md:flex-row">
-      {/* Location List Sidebar */}
-      <div className={`${isMobile ? (view === "sidebar" ? "flex" : "hidden") : "flex w-1/5"} md:block h-full`}>
+      {/* Sidebar - hidden on mobile when viewing map */}
+      <div 
+        className={`${
+          isMobile ? (view === "sidebar" ? "flex" : "hidden") : "flex w-1/5"
+        } md:block h-full`}
+      >
         <LocationSidebar
           locations={locations}
           selectedLocation={selectedLocation}
@@ -97,12 +104,18 @@ const LocationMap: React.FC = () => {
         />
       </div>
 
-      {/* Map */}
-      <div className={`${isMobile ? (view === "map" ? "flex" : "hidden") : "flex w-4/5"} md:block h-full`}>
+      {/* Map - hidden on mobile when viewing sidebar */}
+      <div 
+        className={`${
+          isMobile ? (view === "map" ? "flex" : "hidden") : "flex w-4/5"
+        } md:block h-full relative`}
+      >
+        {/* Back button - only on mobile when map is shown */}
         {isMobile && view === "map" && (
           <button
             onClick={resetSelection}
             className="absolute top-4 left-4 z-[1000] bg-white p-2 rounded-full shadow-md"
+            aria-label="Back to location list"
           >
             <ChevronLeft size={24} />
           </button>
@@ -133,6 +146,7 @@ const LocationMap: React.FC = () => {
           )}
         </MapContainer>
 
+        {/* Reset selection button - only shown on desktop when a location is selected */}
         {selectedLocation && !isMobile && (
           <button
             onClick={resetSelection}
