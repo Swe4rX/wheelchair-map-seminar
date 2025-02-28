@@ -9,8 +9,7 @@ interface LocationMarkerProps {
   onSelect: (location: Location) => void;
 }
 
-// Default icon name for all markers
-const DEFAULT_ICON_NAME = "default-icon";
+const DEFAULT_ICON_NAME = "marker-icon";
 
 const createMarkerIcon = () => {
   return L.icon({
