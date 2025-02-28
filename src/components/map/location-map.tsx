@@ -6,6 +6,7 @@ import { Location } from "../map-types";
 import { LocationSidebar } from "../sidebar/location-sidebar";
 import { MapController } from "./map-controller";
 import { LocationMarker } from "./location-marker";
+import { ChevronLeft } from "lucide-react"; // Import icon for back button
 
 // Map default settings
 const DEFAULT_CENTER: [number, number] = [48.7519, 8.55];
@@ -15,9 +16,21 @@ const LocationMap: React.FC = () => {
   const [locations, setLocations] = useState<Location[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(
-    null
-  );
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
+  const [view, setView] = useState<"sidebar" | "map">("sidebar"); // New state for controlling mobile view
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+
+  // Check if device is mobile
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkIfMobile();
+    window.addEventListener("resize", checkIfMobile);
+    
+    return () => window.removeEventListener("resize", checkIfMobile);
+  }, []);
 
   useEffect(() => {
     const fetchLocations = async () => {
@@ -45,10 +58,16 @@ const LocationMap: React.FC = () => {
 
   const handleLocationSelect = (location: Location) => {
     setSelectedLocation(location);
+    if (isMobile) {
+      setView("map");
+    }
   };
 
   const resetSelection = () => {
     setSelectedLocation(null);
+    if (isMobile) {
+      setView("sidebar");
+    }
   };
 
   if (error) {
@@ -66,17 +85,29 @@ const LocationMap: React.FC = () => {
   }
 
   return (
-    <div className="fixed inset-0 flex">
+    <div className="fixed inset-0 flex flex-col md:flex-row">
       {/* Location List Sidebar */}
-      <LocationSidebar
-        locations={locations}
-        selectedLocation={selectedLocation}
-        onLocationSelect={handleLocationSelect}
-        isLoading={isLoading}
-      />
+      <div className={`${isMobile ? (view === "sidebar" ? "flex" : "hidden") : "flex w-1/5"} md:block h-full`}>
+        <LocationSidebar
+          locations={locations}
+          selectedLocation={selectedLocation}
+          onLocationSelect={handleLocationSelect}
+          isLoading={isLoading}
+          className="w-full"
+        />
+      </div>
 
       {/* Map */}
-      <div className="w-4/5 h-full">
+      <div className={`${isMobile ? (view === "map" ? "flex" : "hidden") : "flex w-4/5"} md:block h-full`}>
+        {isMobile && view === "map" && (
+          <button
+            onClick={resetSelection}
+            className="absolute top-4 left-4 z-[1000] bg-white p-2 rounded-full shadow-md"
+          >
+            <ChevronLeft size={24} />
+          </button>
+        )}
+        
         <MapContainer
           center={DEFAULT_CENTER}
           zoom={DEFAULT_ZOOM}
@@ -102,7 +133,7 @@ const LocationMap: React.FC = () => {
           )}
         </MapContainer>
 
-        {selectedLocation && (
+        {selectedLocation && !isMobile && (
           <button
             onClick={resetSelection}
             className="absolute top-4 right-4 z-[1000] bg-white px-4 py-2 rounded-md shadow-md"

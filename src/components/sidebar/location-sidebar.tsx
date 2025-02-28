@@ -10,14 +10,17 @@ interface LocationSidebarProps {
   selectedLocation: Location | null;
   onLocationSelect: (location: Location) => void;
   isLoading?: boolean;
+  className?: string;
 }
 
 export const LocationSidebar: React.FC<LocationSidebarProps> = ({ 
   locations, 
   selectedLocation, 
   onLocationSelect,
-  isLoading = false
+  isLoading = false,
+  className = ""
 }) => {
+  // Rest of component remains the same
   const [searchTerm, setSearchTerm] = useState("");
   
   // Filter and sort locations based on search term
@@ -54,7 +57,7 @@ export const LocationSidebar: React.FC<LocationSidebarProps> = ({
 
   if (isLoading) {
     return (
-      <div className="w-1/5 h-full overflow-y-auto bg-white p-4 border-r border-gray-200">
+      <div className={`h-full overflow-y-auto bg-white p-4 border-r border-gray-200 ${className}`}>
         <h2 className="text-xl font-bold mb-4">Einträge</h2>
         <div className="flex items-center justify-center h-32">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -64,7 +67,7 @@ export const LocationSidebar: React.FC<LocationSidebarProps> = ({
   }
 
   return (
-    <div className="w-1/5 h-full overflow-y-auto bg-white p-4 border-r border-gray-200">
+    <div className={`h-full overflow-y-auto bg-white p-4 border-r border-gray-200 ${className}`}>
       <h2 className="text-xl font-bold mb-4">Einträge</h2>
       
       {/* Search Bar */}
