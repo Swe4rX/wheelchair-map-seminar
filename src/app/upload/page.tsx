@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-// Define location data type for better type safety
 interface LocationFormData {
   name: string;
   description: string;
@@ -13,7 +12,6 @@ interface LocationFormData {
   rating: string;
 }
 
-// Initial form state
 const initialFormState: LocationFormData = {
   name: "",
   description: "",
