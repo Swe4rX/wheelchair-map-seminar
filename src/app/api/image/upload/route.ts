@@ -24,8 +24,17 @@ export async function POST(request: req) {
 
     // Upload to Cloudinary
     const apiResponse = await cloudinary.uploader.upload(tempPath, {
-      upload_preset: "locations",
-    });
+		upload_preset: "locations",
+		transformation: [
+			{ 
+				width: 800,
+				height: 600,
+				crop: "limit",
+				quality: "auto",
+				fetch_format: "auto"
+			}
+		]
+	});
     //console.log("Cloudinary response:", apiResponse);
 
     try {
