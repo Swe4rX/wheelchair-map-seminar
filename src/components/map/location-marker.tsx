@@ -9,11 +9,9 @@ interface LocationMarkerProps {
   onSelect: (location: Location) => void;
 }
 
-const DEFAULT_ICON_NAME = "marker-icon";
-
 const createMarkerIcon = () => {
   return L.icon({
-    iconUrl: `/markers/${DEFAULT_ICON_NAME}.png`,
+    iconUrl: `/markers/marker-icon.png`,
     iconSize: [25, 41],
     iconAnchor: [16, 32],
     popupAnchor: [0, -32],
@@ -24,7 +22,6 @@ export const LocationMarker: React.FC<LocationMarkerProps> = ({
   location,
   onSelect,
 }) => {
-  
   const icon = React.useMemo(
     () => createMarkerIcon(),
     [] 
@@ -38,7 +35,7 @@ export const LocationMarker: React.FC<LocationMarkerProps> = ({
         click: () => onSelect(location),
       }}
     >
-      <Popup>
+      <Popup maxWidth={400} minWidth={400}> //TODO: Fix this to use a more responsive design
         <LocationPopup location={location} />
       </Popup>
     </Marker>
