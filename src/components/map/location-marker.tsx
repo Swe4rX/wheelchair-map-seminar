@@ -35,8 +35,9 @@ export const LocationMarker: React.FC<LocationMarkerProps> = ({
         click: () => onSelect(location),
       }}
     >
-      <Popup maxWidth={400} minWidth={400}> //TODO: Fix this to use a more responsive design
+      <Popup maxWidth={400} minWidth={400}>
         <LocationPopup location={location} />
+        {/* TODO: Fix this to use a more responsive design */}
       </Popup>
     </Marker>
   );
