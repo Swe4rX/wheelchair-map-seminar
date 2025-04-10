@@ -1,3 +1,10 @@
+export interface Image {
+  id: string;
+  url: string;
+  publicId: string;
+  assetId: string;
+}
+
 export interface Location {
   id: string;
   name: string;
@@ -5,5 +12,5 @@ export interface Location {
   latitude: number;
   longitude: number;
   rating: number;
-  imageUrl: string;
+  images: Image[];
 }

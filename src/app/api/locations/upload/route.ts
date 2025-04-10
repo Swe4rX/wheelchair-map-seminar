@@ -1,81 +1,81 @@
-// noinspection t
-
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import cloudinary from "@/lib/cloudinary";
+import { validateLocationData, createErrorResponse, LocationData } from "@/utils/validation";
+
+// Helper to delete Cloudinary images
+async function deleteCloudinaryImages(images: { publicId?: string }[]) {
+  const deletePromises = images
+    .filter(img => img.publicId)
+    .map(img => cloudinary.uploader.destroy(img.publicId!));
+  
+  return Promise.allSettled(deletePromises);
+}
 
 export async function POST(request: NextRequest) {
-	try {
-		const body = await request.json();
-		const {
-			name,
-			description,
-			imageUrl,
-			latitude,
-			longitude,
-			rating,
-		} = body;
-		
-		if (!name || !description || !latitude || !longitude) {
-			return NextResponse.json(
-				{ error: "Missing required fields: name, description, latitude, and longitude are required" },
-				{ status: 400 }
-			);
-		}
-		
-		const parsedLatitude = typeof latitude === "string" ? parseFloat(latitude) : latitude;
-		const parsedLongitude = typeof longitude === "string" ? parseFloat(longitude) : longitude;
-		const parsedRating = rating ? (typeof rating === "string" ? parseFloat(rating) : rating) : 0;
-		
-		if (isNaN(parsedLatitude) || parsedLatitude < -90 || parsedLatitude > 90) {
-			return NextResponse.json(
-				{ error: "Invalid latitude. Must be between -90 and 90." },
-				{ status: 400 }
-			);
-		}
-		
-		if (isNaN(parsedLongitude) || parsedLongitude < -180 || parsedLongitude > 180) {
-			return NextResponse.json(
-				{ error: "Invalid longitude. Must be between -180 and 180." },
-				{ status: 400 }
-			);
-		}
-		
-		const timestamp = new Date().getTime();
-		const slugName = name.toLowerCase().replace(/[^a-z0-9]/g, "-");
-		const id = `${slugName}_${timestamp}`;
-		
-		const location = await prisma.location.create({
-			data: {
-				id,
-				name,
-				description,
-				imageUrl: imageUrl || "none",
-				latitude: parsedLatitude,
-				longitude: parsedLongitude,
-				rating: parsedRating,
-			},
-		});
-		
-		return NextResponse.json({ success: true, location });
-	} catch (error) {
-		console.error("Error creating database entry:", error);
-		
-		if (error instanceof Error) {
-			if (error.message.includes("Unique constraint failed")) {
-				return NextResponse.json(
-					{ error: "A location with this ID already exists" },
-					{ status: 409 }
-				);
-			}
-			return NextResponse.json(
-				{ error: `Database error: ${error.message}` },
-				{ status: 500 }
-			);
-		}
-		
-		return NextResponse.json(
-			{ error: "Failed to create database entry" },
-			{ status: 500 }
-		);
-	}
+  try {
+    const data = await request.json() as LocationData;
+    
+    // Validate request data
+    const validationError = validateLocationData(data, true); // Require images for creation
+    if (validationError) {
+      // Clean up any uploaded images
+      await deleteCloudinaryImages(data.images || []);
+      return createErrorResponse(validationError, 400);
+    }
+    
+    // Check for duplicate location
+    const existingLocation = await prisma.location.findFirst({
+      where: {
+        name: {
+          equals: data.name,
+          mode: 'insensitive' // Case-insensitive comparison
+        }
+      }
+    });
+    
+    if (existingLocation) {
+      // Delete uploaded images
+      await deleteCloudinaryImages(data.images || []);
+      return createErrorResponse(`A location named "${data.name}" already exists`, 409);
+    }
+    
+    // Create slug for ID
+    const timestamp = new Date().getTime();
+    const slugName = data.name!.toLowerCase().replace(/[^a-z0-9]/g, "-");
+    const id = `${slugName}_${timestamp}`;
+    
+    // Create location with connected images in a transaction
+    const location = await prisma.location.create({
+      data: {
+        id,
+        name: data.name!,
+        description: data.description!,
+        latitude: data.latitude!,
+        longitude: data.longitude!,
+        rating: data.rating || 0,
+        images: {
+          create: data.images!.map(img => ({
+            url: img.url,
+            publicId: img.publicId,
+            assetId: img.assetId,
+          }))
+        }
+      },
+      include: {
+        images: true
+      }
+    });
+    
+    return NextResponse.json({ success: true, location });
+  } catch (error) {
+    console.error("Error creating location:", error);
+    
+    return createErrorResponse(
+      error instanceof Error 
+        ? `Database error: ${error.message}` 
+        : "Failed to create location", 
+      500
+    );
+  }
 }

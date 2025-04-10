@@ -48,7 +48,14 @@ body {
   border-radius: 8px !important;
 }
 
+.responsive-popup .leaflet-popup-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
 
+.responsive-popup .leaflet-popup-content-wrapper {
+  padding: 0;
+}
 
 @layer base {
   :root {
