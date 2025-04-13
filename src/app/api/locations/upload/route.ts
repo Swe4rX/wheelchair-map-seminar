@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest as req, NextResponse as res } from "next/server";
 import prisma from "@/lib/prisma";
 import cloudinary from "@/lib/cloudinary";
 import { validateLocationData, createErrorResponse, LocationData } from "@/utils/validation";
@@ -12,7 +12,7 @@ async function deleteCloudinaryImages(images: { publicId?: string }[]) {
   return Promise.allSettled(deletePromises);
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: req) {
   try {
     const data = await request.json() as LocationData;
     
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
       }
     });
     
-    return NextResponse.json({ success: true, location });
+    return res.json({ success: true, location });
   } catch (error) {
     console.error("Error creating location:", error);
     

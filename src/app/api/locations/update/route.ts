@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest as req, NextResponse as res } from "next/server";
 import prisma from "@/lib/prisma";
 import { validateLocationData, createErrorResponse, LocationData } from "@/utils/validation";
 
-export async function PUT(request: NextRequest) {
+export async function PUT(request: req) {
     try {
         const data = await request.json() as LocationData;
         
@@ -40,7 +40,7 @@ export async function PUT(request: NextRequest) {
             }
         });
         
-        return NextResponse.json({
+        return res.json({
             success: true,
             location: updatedLocation
         });

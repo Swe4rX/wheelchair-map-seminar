@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest as req, NextResponse as res } from "next/server";
 import cloudinary from "@/lib/cloudinary";
 import { writeFile, unlink } from "fs/promises";
 import { join } from "path";
@@ -6,10 +6,10 @@ import { tmpdir } from "os";
 import { v4 as uuidv4 } from "uuid";
 
 function createErrorResponse(message: string, status = 400) {
-  return NextResponse.json({ error: message }, { status });
+  return res.json({ error: message }, { status });
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: req) {
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
         ]
       });
       
-      return NextResponse.json({
+      return res.json({
         url: result.secure_url,
         publicId: result.public_id,
         assetId: result.asset_id
