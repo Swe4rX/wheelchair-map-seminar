@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
 export interface UploadedImage {
   url: string;
@@ -13,26 +13,46 @@ export function useMultiImageUpload(maxImages = 5) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
+  // Use refs to track mounted state and prevent memory leaks
+  const isMounted = useRef(true);
+  
+  // Clear refs on unmount
+  useCallback(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+  
   const handleImageSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length) return;
     
     const selectedFiles = Array.from(e.target.files);
-    
+
     if (files.length + selectedFiles.length > maxImages) {
       setError(`Maximum ${maxImages} images allowed`);
       return;
     }
+
+    const invalidFile = selectedFiles.find(file => 
+      !file.type.startsWith('image/') || file.size > 5 * 1024 * 1024
+    );
+    
+    if (invalidFile) {
+      setError(`Invalid file: ${invalidFile.name}. Please use images under 5MB.`);
+      return;
+    }
     
     setFiles(prev => [...prev, ...selectedFiles]);
-    
-    // Create and store preview URLs
+
     const newPreviews = selectedFiles.map(file => URL.createObjectURL(file));
     setPreviews(prev => [...prev, ...newPreviews]);
     setError(null);
   }, [files.length, maxImages]);
   
   const removeImage = useCallback((index: number) => {
-    URL.revokeObjectURL(previews[index]);
+    if (previews[index]) {
+      URL.revokeObjectURL(previews[index]);
+    }
     
     setFiles(prev => prev.filter((_, i) => i !== index));
     setPreviews(prev => prev.filter((_, i) => i !== index));
@@ -46,7 +66,6 @@ export function useMultiImageUpload(maxImages = 5) {
     setError(null);
     
     try {
-      // Create FormData for all files at once
       const uploadPromises = files.map(async (file, index) => {
         const formData = new FormData();
         formData.append("file", file);
@@ -65,15 +84,37 @@ export function useMultiImageUpload(maxImages = 5) {
         return await response.json();
       });
       
-      // Upload all images in parallel
-      const results = await Promise.all(uploadPromises);
-      setUploadedImages(results);
-      return results;
+      // Handle mixed success/failure results
+      const results = await Promise.allSettled(uploadPromises);
+      const successfulUploads = results
+        .filter((result): result is PromiseFulfilledResult<UploadedImage> => 
+          result.status === 'fulfilled'
+        )
+        .map(result => result.value);
+      
+      const failures = results
+        .filter((result): result is PromiseRejectedResult => 
+          result.status === 'rejected'
+        );
+      
+      if (failures.length > 0) {
+        setError(`${failures.length} of ${results.length} uploads failed`);
+      }
+
+      if (isMounted.current) {
+        setUploadedImages(successfulUploads);
+      }
+      
+      return successfulUploads;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload failed");
+      if (isMounted.current) {
+        setError(err instanceof Error ? err.message : "Upload failed");
+      }
       return [];
     } finally {
-      setUploading(false);
+      if (isMounted.current) {
+        setUploading(false);
+      }
     }
   }, [files]);
   
@@ -86,6 +127,7 @@ export function useMultiImageUpload(maxImages = 5) {
   }, [previews]);
   
   return {
+    files,
     previews,
     uploadedImages,
     uploading,
