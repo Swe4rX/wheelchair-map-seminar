@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import React, { memo, useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Maximize2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +21,27 @@ export const ImageGallery = memo(({ images, locationName }: ImageGalleryProps) =
   const handlePrevious = () => setCurrentIndex(prev => (prev > 0 ? prev - 1 : images.length - 1));
   const handleNext = () => setCurrentIndex(prev => (prev < images.length - 1 ? prev + 1 : 0));
   const toggleFullscreen = () => setIsFullscreen(prev => !prev);
+  
+  // Add keyboard navigation for fullscreen mode
+  useEffect(() => {
+    if (!isFullscreen) return;
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") handleNext();
+      else if (e.key === "ArrowLeft") handlePrevious();
+      else if (e.key === "Escape") setIsFullscreen(false);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    
+    // Prevent body scrolling when fullscreen is active
+    document.body.style.overflow = "hidden";
+    
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+    };
+  }, [isFullscreen]);
   
   return (
     <div className="relative">
@@ -75,51 +96,49 @@ export const ImageGallery = memo(({ images, locationName }: ImageGalleryProps) =
       
       {/* Fullscreen Image Modal */}
       {isFullscreen && (
-        <div className="fixed inset-0 bg-black/90 z-[1100] flex flex-col items-center justify-center">
-          <div className="relative w-full h-full max-w-7xl max-h-[90vh] p-4 md:p-8">
-            {/* Close button */}
-            <button 
-              onClick={toggleFullscreen}
-              className="absolute right-4 top-4 bg-white/20 text-white rounded-full p-2 shadow-md z-10 hover:bg-white/40 transition-colors"
-              aria-label="Close fullscreen"
-            >
-              <X size={24} />
-            </button>
-            
-            {/* Image container */}
-            <div className="w-full h-full flex items-center justify-center">
-              <img
-                src={images[currentIndex].url}
-                alt={`${locationName} - Image ${currentIndex + 1}`}
-                className="max-w-full max-h-full object-contain"
-              />
-            </div>
-            
-            {/* Navigation buttons */}
-            {images.length > 1 && (
-              <>
-                <button 
-                  onClick={handlePrevious}
-                  className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/20 text-white rounded-full p-3 shadow-md hover:bg-white/40 transition-colors"
-                  aria-label="Previous image"
-                >
-                  <ChevronLeft size={30} />
-                </button>
-                <button 
-                  onClick={handleNext}
-                  className="absolute right-6 top-1/2 -translate-y-1/2 bg-white/20 text-white rounded-full p-3 shadow-md hover:bg-white/40 transition-colors"
-                  aria-label="Next image"
-                >
-                  <ChevronRight size={30} />
-                </button>
-                
-                {/* Image counter */}
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full">
-                  {currentIndex + 1} / {images.length}
-                </div>
-              </>
-            )}
+        <div className="fixed inset-0 bg-black/95 z-[9999] flex items-center justify-center">
+          {/* Close button */}
+          <button 
+            onClick={toggleFullscreen}
+            className="absolute right-4 top-4 bg-white/20 text-white rounded-full p-2 shadow-md z-10 hover:bg-white/40 transition-colors"
+            aria-label="Close fullscreen"
+          >
+            <X size={24} />
+          </button>
+          
+          {/* Image container - takes up nearly the entire screen */}
+          <div className="w-[95vw] h-[90vh] flex items-center justify-center">
+            <img
+              src={images[currentIndex].url}
+              alt={`${locationName} - Image ${currentIndex + 1}`}
+              className="max-w-full max-h-full object-contain"
+            />
           </div>
+          
+          {/* Navigation buttons */}
+          {images.length > 1 && (
+            <>
+              <button 
+                onClick={handlePrevious}
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 text-white rounded-full p-3 shadow-md hover:bg-white/40 transition-colors"
+                aria-label="Previous image"
+              >
+                <ChevronLeft size={36} />
+              </button>
+              <button 
+                onClick={handleNext}
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 text-white rounded-full p-3 shadow-md hover:bg-white/40 transition-colors"
+                aria-label="Next image"
+              >
+                <ChevronRight size={36} />
+              </button>
+              
+              {/* Image counter */}
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full">
+                {currentIndex + 1} / {images.length}
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>
