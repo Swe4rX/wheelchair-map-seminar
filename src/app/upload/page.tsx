@@ -12,6 +12,7 @@ interface LocationFormData {
   latitude: number;
   longitude: number;
   rating: number;
+  password: string;
 }
 
 export default function UploadPage() {
@@ -21,7 +22,8 @@ export default function UploadPage() {
       description: "",
       latitude: undefined,
       longitude: undefined,
-      rating: 5
+      rating: 5,
+      password: ""
     }
   });
   
@@ -58,7 +60,7 @@ export default function UploadPage() {
     }
     
     // Validate image upload
-    if (uploadedImages.length === 0) {
+    if (uploadedImages.length == 0) {
       setStatus({ error: "Please upload at least one image", isSubmitting: false });
       return;
     }
@@ -98,20 +100,20 @@ export default function UploadPage() {
     <div className="w-full max-w-lg mx-auto p-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">Add New Location</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">Neuen Ort hinzufügen</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)}>
             {/* Location Name */}
             <div className="mb-4">
               <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
-                Location Name*
+                Name*
               </label>
               <input
                 id="name"
                 className="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
                 placeholder="Sommerberg"
-                {...register("name", { required: "Name is required" })}
+                {...register("name", { required: "Name wird benötigt" })}
               />
               {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
             </div>
@@ -119,14 +121,14 @@ export default function UploadPage() {
             {/* Description */}
             <div className="mb-4">
               <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">
-                Description*
+                Beschreibung
               </label>
               <textarea
                 id="description"
                 rows={4}
                 className="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
-                placeholder="Describe this location..."
-                {...register("description", { required: "Description is required" })}
+                placeholder="Beschreibe den Ort..."
+                {...register("description", { required: "Beschreibung wird benötigt" })}
               />
               {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description.message}</p>}
             </div>
@@ -135,7 +137,7 @@ export default function UploadPage() {
             <div className="mb-4 flex flex-wrap -mx-2">
               <div className="w-1/2 px-2">
                 <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="latitude">
-                  Latitude*
+                  Breitengrad
                 </label>
                 <input
                   id="latitude"
@@ -154,7 +156,7 @@ export default function UploadPage() {
               </div>
               <div className="w-1/2 px-2">
                 <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="longitude">
-                  Longitude*
+                  Längengrad
                 </label>
                 <input
                   id="longitude"
@@ -176,7 +178,7 @@ export default function UploadPage() {
             {/* Rating */}
             <div className="mb-4">
               <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="rating">
-                Rating*
+                Bewertung
               </label>
               <select
                 id="rating"
@@ -189,10 +191,25 @@ export default function UploadPage() {
               </select>
             </div>
             
+            {/* Password Field - Add this field before the image upload section */}
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+                Admin-Passwort*
+              </label>
+              <input
+                id="password"
+                type="password"
+                className="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+                placeholder="Passwort eingeben"
+                {...register("password", { required: "Admin-Passwort wird benötigt" })}
+              />
+              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
+            </div>
+            
             {/* Image Upload Section */}
             <div className="mb-6">
               <label className="block text-gray-700 text-sm font-bold mb-2">
-                Location Images* (max 5)
+                Bilder (max 5)
               </label>
               <div className="border-dashed border-2 border-gray-300 rounded p-4 mb-2 bg-gray-50">
                 {/* Upload button */}
