@@ -38,7 +38,7 @@ export const LocationPopup: React.FC<LocationPopupProps> = ({
                 onClick={handleButtonClick}
                 className="w-full py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors"
             >
-                View All Images & Details
+                Bilder & Details ansehen
             </button>
         </div>
     );
