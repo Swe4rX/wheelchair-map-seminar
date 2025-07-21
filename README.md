@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Barrierefreie Orte Bad Wildbad
 
-## Getting Started
+Dies ist eine interaktive Karte für barrierefreie und rollstuhlgerechte Orte in Bad Wildbad. Das Projekt basiert auf [Next.js](https://nextjs.org) und nutzt moderne Webtechnologien für eine zugängliche, schnelle und benutzerfreundliche Anwendung.
 
-First, run the development server:
+## Projektüberblick
+
+- **Stadt:** Bad Wildbad (Schwarzwald)
+- **Ziel:** Übersicht und Bewertung barrierefreier Orte für Menschen mit Mobilitätseinschränkungen
+- **Features:**
+  - Interaktive Karte mit Suchfunktion
+  - Detailansicht mit Bildern, Bewertungen und Beschreibungen
+  - Möglichkeit, neue Orte und Bilder hinzuzufügen (passwortgeschützt)
+  - Optimiert für Barrierefreiheit (WCAG 2.1 AA)
+  - Mobile- und Desktop-optimiert
+
+## Entwicklung starten
+
+1. Installiere die Abhängigkeiten:
+
+```bash
+npm install
+```
+
+2. Starte den Entwicklungsserver:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Öffne [http://localhost:3000](http://localhost:3000) im Browser, um die Anwendung zu sehen.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Wichtige Dateien & Verzeichnisse
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `src/app/page.tsx` – Startseite mit der Kartenansicht
+- `src/components/` – UI-Komponenten (Karte, Sidebar, Galerie, etc.)
+- `prisma/schema.prisma` – Datenbankschema (PostgreSQL)
+- `.env` – Umgebungsvariablen (z.B. Datenbank, Cloudinary)
 
-## Learn More
+## Deployment
 
-To learn more about Next.js, take a look at the following resources:
+Das Projekt ist für die Bereitstellung auf [Vercel](https://vercel.com/) optimiert. Ein Deployment erfolgt automatisch nach jedem Push auf den Hauptbranch.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Mitwirken & Feedback
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Neue barrierefreie Orte können über die Upload-Seite hinzugefügt werden (Passwort erforderlich).
 
-## Deploy on Vercel
+## Lizenz
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Dieses Projekt steht unter der MIT-Lizenz.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
