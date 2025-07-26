@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { MapContainer, TileLayer, ZoomControl } from "react-leaflet";
 import { Location } from "../map-types";
@@ -9,6 +8,7 @@ import { useResponsiveView } from "@/hooks/useResponsiveView";
 import { DetailSidePanel } from "./detail-side-panel";
 import { LocationMarker } from "./location-marker";
 import useSWR from "swr";
+import { useRouter } from "next/navigation"; // Add this import for navigation
 
 // Map default settings
 const DEFAULT_CENTER: [number, number] = [48.7519, 8.55];
@@ -31,6 +31,7 @@ const LocationMap: React.FC = () => {
     const [detailPanelOpen, setDetailPanelOpen] = useState(false);
     const [detailLocation, setDetailLocation] = useState<Location | null>(null);
     const { isMobile, view, setView } = useResponsiveView();
+    const router = useRouter(); // For Credits button navigation
 
     // Track map visibility for proper resizing
     const isMapVisible = !isMobile || (isMobile && view === "map");
@@ -115,15 +116,29 @@ const LocationMap: React.FC = () => {
                 role="application"
                 aria-label="Interaktive Karte der barrierefreien Orte in Bad Wildbad"
             >
-                {isMobile && view === "map" && (
-                    <button
+                {/* Buttons only when details panel is NOT open */}
+                {!detailPanelOpen && (
+                  <>
+                    {/* Auswahl zurücksetzen Button */}
+                    {selectedLocation && !isMobile && (
+                      <button
                         onClick={resetSelection}
-                        className="absolute top-4 left-4 z-[1000] bg-white p-2 rounded-full shadow-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                        aria-label="Zurück zur Ortsliste"
+                        className="fixed top-4 right-4 z-[10000] bg-white border border-gray-200 shadow-lg rounded-full px-4 py-2 text-blue-700 font-medium hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                         type="button"
+                        aria-label="Auswahl zurücksetzen"
+                      >
+                        Auswahl zurücksetzen
+                      </button>
+                    )}
+                    {/* Credits Button */}
+                    <button
+                      onClick={() => router.push("/credits")}
+                      className="fixed bottom-7 right-4 z-[10000] bg-white border border-gray-200 shadow-lg rounded-full px-4 py-2 text-blue-700 font-medium hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                      aria-label="Zur Credits-Seite"
                     >
-                        <ChevronLeft size={24} aria-hidden="true" />
+                      Credits
                     </button>
+                  </>
                 )}
 
                 <MapContainer
@@ -149,17 +164,7 @@ const LocationMap: React.FC = () => {
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                     />
                     {selectedMarker}
-                </MapContainer>                {selectedLocation && !isMobile && (
-                    <button
-                        onClick={resetSelection}
-                        className="absolute top-4 right-4 z-[1000] bg-white px-4 py-2 rounded-md shadow-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                        type="button"
-                        aria-label="Auswahl zurücksetzen"
-                    >
-                        Auswahl zurücksetzen
-                    </button>
-                )}
-
+                </MapContainer>
                 <DetailSidePanel
                     location={detailLocation}
                     isOpen={detailPanelOpen}

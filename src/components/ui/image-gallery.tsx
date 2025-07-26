@@ -16,13 +16,6 @@ export const ImageGallery = memo(({ images, locationName }: ImageGalleryProps) =
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // Reset currentIndex when images change or if currentIndex is out of bounds
-  useEffect(() => {
-    if (!images || images.length === 0 || currentIndex >= images.length) {
-      setCurrentIndex(0);
-    }
-  }, [images, currentIndex]);
-
   const handlePrevious = useCallback(() => 
     setCurrentIndex(prev => (prev > 0 ? prev - 1 : images.length - 1)),
     [images.length]
@@ -38,25 +31,15 @@ export const ImageGallery = memo(({ images, locationName }: ImageGalleryProps) =
     []
   );
   
-  // Safety checks
-  if (!images || images.length === 0) {
-    return <p className="text-gray-500 italic">No images available</p>;
-  }
+  if (images.length === 0) return <p className="text-gray-500 italic">No images available</p>;
   
-  // Ensure currentIndex is valid
-  const safeCurrentIndex = Math.max(0, Math.min(currentIndex, images.length - 1));
-  const currentImage = images[safeCurrentIndex];
-  
-  if (!currentImage) {
-    return <p className="text-gray-500 italic">No images available</p>;
-  }
-    return (
+  return (
     <div className="relative">
       {/* Thumbnail view */}
       <div className="relative aspect-video rounded-md overflow-hidden bg-gray-100">
         <img
-          src={currentImage.url}
-          alt={`${locationName} - Image ${safeCurrentIndex + 1}`}
+          src={images[currentIndex].url}
+          alt={`${locationName} - Image ${currentIndex + 1}`}
           className="w-full h-full object-cover transition-opacity duration-300 cursor-pointer"
           loading="lazy"
           onClick={toggleFullscreen}
@@ -73,7 +56,7 @@ export const ImageGallery = memo(({ images, locationName }: ImageGalleryProps) =
       {/* Navigation controls - only show if multiple images */}
       {images.length > 1 && (
         <ImageNavigation 
-          currentIndex={safeCurrentIndex}
+          currentIndex={currentIndex}
           totalImages={images.length}
           onPrevious={handlePrevious}
           onNext={handleNext}
@@ -86,7 +69,7 @@ export const ImageGallery = memo(({ images, locationName }: ImageGalleryProps) =
         <FullscreenView
           images={images}
           locationName={locationName}
-          currentIndex={safeCurrentIndex}
+          currentIndex={currentIndex}
           onClose={toggleFullscreen}
           onPrevious={handlePrevious}
           onNext={handleNext}
@@ -154,63 +137,51 @@ const FullscreenView = memo(({
   onClose: () => void;
   onPrevious: () => void;
   onNext: () => void;
-}) => {
-  // Safety check for fullscreen view
-  if (!images || images.length === 0 || currentIndex >= images.length) {
-    return null;
-  }
-
-  const currentImage = images[currentIndex];
-  if (!currentImage) {
-    return null;
-  }
-
-  return (
-    <div className="fixed inset-0 bg-black/95 z-[9999] flex items-center justify-center">
-      <button 
-        onClick={onClose}
-        className="absolute right-4 top-4 bg-white/20 text-white rounded-full p-2 shadow-md z-10 hover:bg-white/40 transition-colors"
-        aria-label="Close fullscreen"
-      >
-        <X size={24} />
-      </button>
-      
-      {/* Full screen image - 100vw/100vh with padding */}
-      <div className="w-screen h-screen p-8 flex items-center justify-center">
-        <img
-          src={currentImage.url}
-          alt={`${locationName} - Image ${currentIndex + 1}`}
-          className="max-w-full max-h-full object-contain"
-        />
-      </div>
-      
-      {/* Navigation buttons */}
-      {images.length > 1 && (
-        <>
-          <button 
-            onClick={onPrevious}
-            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 text-white rounded-full p-3 shadow-md hover:bg-white/40 transition-colors"
-            aria-label="Previous image"
-          >
-            <ChevronLeft size={36} />
-          </button>
-          <button 
-            onClick={onNext}
-            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 text-white rounded-full p-3 shadow-md hover:bg-white/40 transition-colors"
-            aria-label="Next image"
-          >
-            <ChevronRight size={36} />
-          </button>
-          
-          {/* Image counter */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full">
-            {currentIndex + 1} / {images.length}
-          </div>
-        </>
-      )}
+}) => (
+  <div className="fixed inset-0 bg-black/95 z-[9999] flex items-center justify-center">
+    <button 
+      onClick={onClose}
+      className="absolute right-4 top-4 bg-white/20 text-white rounded-full p-2 shadow-md z-10 hover:bg-white/40 transition-colors"
+      aria-label="Close fullscreen"
+    >
+      <X size={24} />
+    </button>
+    
+    {/* Full screen image - 100vw/100vh with padding */}
+    <div className="w-screen h-screen p-8 flex items-center justify-center">
+      <img
+        src={images[currentIndex].url}
+        alt={`${locationName} - Image ${currentIndex + 1}`}
+        className="max-w-full max-h-full object-contain"
+      />
     </div>
-  );
-});
+    
+    {/* Navigation buttons */}
+    {images.length > 1 && (
+      <>
+        <button 
+          onClick={onPrevious}
+          className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 text-white rounded-full p-3 shadow-md hover:bg-white/40 transition-colors"
+          aria-label="Previous image"
+        >
+          <ChevronLeft size={36} />
+        </button>
+        <button 
+          onClick={onNext}
+          className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 text-white rounded-full p-3 shadow-md hover:bg-white/40 transition-colors"
+          aria-label="Next image"
+        >
+          <ChevronRight size={36} />
+        </button>
+        
+        {/* Image counter */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full">
+          {currentIndex + 1} / {images.length}
+        </div>
+      </>
+    )}
+  </div>
+));
 
 ImageGallery.displayName = "ImageGallery";
 ImageNavigation.displayName = "ImageNavigation";
