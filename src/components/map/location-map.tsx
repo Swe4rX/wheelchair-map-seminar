@@ -116,6 +116,19 @@ const LocationMap: React.FC = () => {
                 role="application"
                 aria-label="Interaktive Karte der barrierefreien Orte in Bad Wildbad"
             >
+                {/* Mobile "Zurück zur Liste" Button */}
+                {isMobile && view === "map" && selectedLocation && !detailPanelOpen && (
+                  <button
+                    onClick={() => setView("sidebar")}
+                    className="absolute top-4 left-4 z-[10001] bg-white border border-gray-200 shadow-lg rounded-full px-4 py-2 flex items-center text-blue-700 font-medium hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                    aria-label="Zurück zur Liste"
+                    type="button"
+                  >
+                    <ChevronLeft className="mr-2" size={20} />
+                    Zurück zur Liste
+                  </button>
+                )}
+
                 {/* Buttons only when details panel is NOT open */}
                 {!detailPanelOpen && (
                   <>
