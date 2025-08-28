@@ -1,6 +1,7 @@
 # Barrierefreie Orte Bad Wildbad
 
 Dies ist eine interaktive Karte für barrierefreie und rollstuhlgerechte Orte in Bad Wildbad. Das Projekt basiert auf [Next.js](https://nextjs.org) und nutzt moderne Webtechnologien für eine zugängliche, schnelle und benutzerfreundliche Anwendung.
+Live-Deployment: <https://wheelchair-map.vercel.app/>
 
 ## Projektüberblick
 
