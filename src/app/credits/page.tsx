@@ -2,7 +2,7 @@ import React from "react";
 
 const INVESTORS = [
   {
-    name: "Sana Kliniken AG",
+    name: "Quellenhof",
     logo: "/investors/sana-de.svg",
     website: "https://www.sana.de/quellenhof-wildbad",
     alt: "Logo von Sana Kliniken AG",
