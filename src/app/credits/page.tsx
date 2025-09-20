@@ -15,7 +15,7 @@ const INVESTORS = [
   },
 ];
 
-export default function CreditsPage() {
+export default function CreditsPage() { 
   return (
     <>
       <header className="sr-only">

@@ -27,7 +27,8 @@ const LocationMap: React.FC = () => {
     });
     const isLoading = !locations && !error;
     
-    const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
+  const [markerPopupOpen, setMarkerPopupOpen] = useState(false);
     const [detailPanelOpen, setDetailPanelOpen] = useState(false);
     const [detailLocation, setDetailLocation] = useState<Location | null>(null);
     const { isMobile, view, setView } = useResponsiveView();
@@ -36,13 +37,14 @@ const LocationMap: React.FC = () => {
     // Track map visibility for proper resizing
     const isMapVisible = !isMobile || (isMobile && view === "map");
 
-    const handleLocationSelect = useCallback(
-        (location: Location) => {
-            setSelectedLocation(location);
-            if (isMobile) setView("map");
-        },
-        [isMobile, setView]
-    );
+  const handleLocationSelect = useCallback(
+    (location: Location) => {
+      setSelectedLocation(location);
+      setMarkerPopupOpen(true);
+      if (isMobile) setView("map");
+    },
+    [isMobile, setView]
+  );
 
     const handleViewDetails = useCallback((location: Location) => {
         setDetailLocation(location);
@@ -53,37 +55,40 @@ const LocationMap: React.FC = () => {
         setDetailPanelOpen(false);
     }, []);
 
-    const resetSelection = useCallback(() => {
-        setSelectedLocation(null);
-        if (isMobile) setView("sidebar");
-    }, [isMobile, setView]);
+  const resetSelection = useCallback(() => {
+    setSelectedLocation(null);
+    setMarkerPopupOpen(false);
+    if (isMobile) setView("sidebar");
+  }, [isMobile, setView]);
     
     // Memoize markers to prevent unnecessary re-renders
     const selectedMarker = useMemo(() => {
       if (!selectedLocation || isLoading) return null;
-      
       return (
         <LocationMarker
           key={selectedLocation.id}
           location={selectedLocation}
           onSelect={handleLocationSelect}
           onViewDetails={handleViewDetails}
+          popupOpen={markerPopupOpen}
+          setPopupOpen={setMarkerPopupOpen}
         />
       );
-    }, [selectedLocation, isLoading, handleLocationSelect, handleViewDetails]);    if (error) {
-        return (
-            <div className="fixed inset-0 flex flex-col items-center justify-center bg-white" role="alert">
-                <div className="text-red-500 mb-4">Fehler beim Laden der Standorte. Bitte versuchen Sie es erneut.</div>
-                <button
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                    onClick={() => window.location.reload()}
-                    type="button"
-                >
-                    Erneut versuchen
-                </button>
-            </div>
-        );
-    }
+    }, [selectedLocation, isLoading, handleLocationSelect, handleViewDetails, markerPopupOpen]);
+  if (error) {
+    return (
+      <div className="fixed inset-0 flex flex-col items-center justify-center bg-white" role="alert">
+        <div className="text-red-500 mb-4">Fehler beim Laden der Standorte. Bitte versuchen Sie es erneut.</div>
+        <button
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          onClick={() => window.location.reload()}
+          type="button"
+        >
+          Erneut versuchen
+        </button>
+      </div>
+    );
+  }
 
     return (
         <div className="fixed inset-0 flex flex-col md:flex-row">
